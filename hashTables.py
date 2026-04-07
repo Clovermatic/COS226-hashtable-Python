@@ -4,12 +4,12 @@ import time
 #Brook St Laurent
 #COS 226
 #HW 5
-#Hash tables, optimization, and analysis
-#Date last edited: 4/6/26
-#Version description: 2nd version of a hash table program where the movie title
-# is the key. Linear probing method has been updated so that the hashMath function uses a for loop instead;
-# ended up de-optimizing the program by doing this. However, also discovered that changing the size variable to a
-# prime number did improve the run time by a few seconds
+#Assignment: Hash something out
+#Date last edited: 4/7/26
+#Version description: 3rd version of a hash table program where the movie title is the key.
+# Linear probing method has been updated so that there are now two separate functions that calculate the number of collisions,
+# as well as the amount of wasted space. hashMath function has been changed back to its V1 format, with minor edit of prime number
+# variable
 
 #will be used for linked list insertion
 class Node:
@@ -35,34 +35,30 @@ def hashMath(hashData):
     #create variable for prime number to be used
     prime = 7079
 
-    #calculates a new key using new prime number and a for loop
-    for i in hashData:
-        newKey = (prime < 5) + prime + ord(i)
-        key = newKey
-        return key
-
-
-
-    #OLD VERSION
     #creates a hash key by multiplying the len of hashData to ord of hashData at 0, then adds prime number
     #prime number reduces chance of collisions
-    # key = len(hashData) * ord(hashData[0]) + 7079
-    # return key
+    key = len(hashData) * ord(hashData[0]) + prime
+    return key
+
+    #old version 2 for loop (inefficient)
+    #calculates a new key using new prime number and a for loop
+    # for i in hashData:
+    #     newKey = (prime < 5) + prime + ord(i)
+    #     key = newKey
+    #     return key
     
     #inserts data into hash table with linear probing method.
     #returns total collisions
 def linearProbing(hashTable, index, data):
     #variable for determining if a spot is empty or not
     foundSpot = False
-    #variable to track number of collisions
-    collisions = 0
 
     while foundSpot == False:
         #if spot in table is full, increment collisions counter
         #elif the next index would be outside the length of the table, return to beginning of hash table
         #else, move to next index in hashTable
         if hashTable[index] != None:
-            collisions += 1
+
             if index + 1 >= len(hashTable):
                 index = 0
             else:
@@ -71,6 +67,28 @@ def linearProbing(hashTable, index, data):
         else:
             foundSpot = True
             hashTable[index] = data
+
+#calculates and then displays wasted space
+def displayWastedSpace(table):
+    #capacity for tracking total number of key-value pairs in the hash tables
+    wastedSpace = 0
+    for i in table:
+        if i == None:
+            wastedSpace += 1
+    return wastedSpace
+
+#calculates and displays total number of collisions
+def displayCollisions(hashTable, index):
+    foundSpot = False
+    collisions = 0
+    index = 0
+    while foundSpot == False:
+        if hashTable[index] != None:
+            collisions += 1
+            index += 1
+        else:
+            foundSpot = True
+
     return collisions
 
 #shell of function that will later be used to implement the linked list
@@ -84,7 +102,7 @@ def main():
     titleWastedSpace = 0
     quoteWastedSpace = 0
 
-    hashSize = 193939
+    hashSize = 19391
     hashTableTitle = [None] * hashSize
     hashTableQuote = [None] * hashSize
 
@@ -111,21 +129,25 @@ def main():
             #get indexes of the indexes in rows for hash table with quote keys
             quoteIndex = quoteKeys % len(hashTableQuote)
 
-            #insert Data into hash tables
-            hashTitleCollisions = linearProbing(hashTableTitle, titleIndex, movie)
-            hashQuoteCollisions = linearProbing(hashTableQuote, quoteIndex, movie)
-
-            #calculate wasted space in both hash tables
-            titleWastedSpace += hashSize - len(hashTableTitle)
-            quoteWastedSpace += hashSize - len(hashTableQuote)
+            #insert Data into hash tables using linear probing method
+            linearProbing(hashTableTitle, titleIndex, movie)
+            linearProbing(hashTableQuote, quoteIndex, movie)
     
     #hash table construction complete, end timer
     end = time.time()
 
-    runningTime = end - start
-
     #state which version this is and what method was used
-    print("Version 2 using updated linear probing insert method\n")
+    print("Version 3 using new collision counting function and wasted space function; updated linear probing insert method\n")
+
+    #calculate wasted space in both hash tables using displayWastedSpace function
+    titleWastedSpace = displayWastedSpace(hashTableTitle)
+    quoteWastedSpace = displayWastedSpace(hashTableQuote)
+
+    #calculate collisions in both hash tables using displayCollisions function
+    hashTitleCollisions = displayCollisions(hashTableTitle, titleIndex)
+    hashQuoteCollisions = displayCollisions(hashTableQuote, quoteIndex)
+
+    runningTime = end - start
 
     #state total time it took to construct hash tables
     #use 0.2f for formatting
@@ -137,8 +159,8 @@ def main():
 
     #state how much wasted space is left in each hash table
     #format to have 0.2f decimal places for formatting
-    print("There is ", format(titleWastedSpace, ".2f"), " wasted space in the title hash table")
-    print("There is ", format(quoteWastedSpace, ".2f"), " wasted space in the quote hash table")
+    print("There is ", titleWastedSpace, " wasted space in the title hash table")
+    print("There is ", quoteWastedSpace, " wasted space in the quote hash table")
 
 
 #thing to get the main function running properly
