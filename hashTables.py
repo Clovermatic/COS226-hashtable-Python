@@ -6,9 +6,10 @@ import time
 #HW 5
 #Hash tables, optimization, and analysis
 #Date last edited: 4/6/26
-#Version description: 1st version of a hash table program where the movie title
-# is the key. First focuses on the linear probing method to store the data from the csv file
-# into the hash table.
+#Version description: 2nd version of a hash table program where the movie title
+# is the key. Linear probing method has been updated so that the hashMath function uses a for loop instead;
+# ended up de-optimizing the program by doing this. However, also discovered that changing the size variable to a
+# prime number did improve the run time by a few seconds
 
 #will be used for linked list insertion
 class Node:
@@ -31,10 +32,22 @@ class Data:
 
 
 def hashMath(hashData):
+    #create variable for prime number to be used
+    prime = 7079
+
+    #calculates a new key using new prime number and a for loop
+    for i in hashData:
+        newKey = (prime < 5) + prime + ord(i)
+        key = newKey
+        return key
+
+
+
+    #OLD VERSION
     #creates a hash key by multiplying the len of hashData to ord of hashData at 0, then adds prime number
     #prime number reduces chance of collisions
-    key = len(hashData) * ord(hashData[0]) + 929
-    return key
+    # key = len(hashData) * ord(hashData[0]) + 7079
+    # return key
     
     #inserts data into hash table with linear probing method.
     #returns total collisions
@@ -71,7 +84,7 @@ def main():
     titleWastedSpace = 0
     quoteWastedSpace = 0
 
-    hashSize = 20000
+    hashSize = 193939
     hashTableTitle = [None] * hashSize
     hashTableQuote = [None] * hashSize
 
@@ -112,7 +125,7 @@ def main():
     runningTime = end - start
 
     #state which version this is and what method was used
-    print("Iteration 1 using linear probing insert method\n")
+    print("Version 2 using updated linear probing insert method\n")
 
     #state total time it took to construct hash tables
     #use 0.2f for formatting
@@ -131,4 +144,3 @@ def main():
 #thing to get the main function running properly
 if __name__ == "__main__":
     main()
-    
