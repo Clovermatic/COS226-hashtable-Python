@@ -6,10 +6,12 @@ import time
 #HW 5
 #Assignment: Hash something out
 #Date last edited: 4/7/26
-#Version description: 3rd version of a hash table program where the movie title is the key.
-# Linear probing method has been updated so that there are now two separate functions that calculate the number of collisions,
-# as well as the amount of wasted space. hashMath function has been changed back to its V1 format, with minor edit of prime number
-# variable
+#Version description: 4th version of the hash table program, featuring new
+# implementation of link list method function, as well as new collision counting function
+# for the linked list function. Linked list function is called for both hash tables in
+# the main function, as well as the new collision counting method in place of the old one.
+# collision counting functions have been renamed accordingly to distinguish between
+# which function is suited for which method.
 
 #will be used for linked list insertion
 class Node:
@@ -69,16 +71,16 @@ def linearProbing(hashTable, index, data):
             hashTable[index] = data
 
 #calculates and then displays wasted space
-def displayWastedSpace(table):
+def displayWastedSpace(hashTable):
     #capacity for tracking total number of key-value pairs in the hash tables
     wastedSpace = 0
-    for i in table:
+    for i in hashTable:
         if i == None:
             wastedSpace += 1
     return wastedSpace
 
-#calculates and displays total number of collisions
-def displayCollisions(hashTable, index):
+#calculates and displays total number of collisions for linear probing method
+def displayLinearCollisions(hashTable, index):
     foundSpot = False
     collisions = 0
     index = 0
@@ -91,10 +93,36 @@ def displayCollisions(hashTable, index):
 
     return collisions
 
+#calculates and displays total number of collisions for linked list method
+def displayLinkedCollisions(hashTable, index):
+    collisions = 0
+    curData = hashTable[index]
+
+    #skip first data element since no collision will happen here with linked list method
+    curData = curData.next
+
+    #while loop to count collisions
+    while curData.next != None:
+        collisions += 1
+        curData = curData.next
+
+    return collisions
+
+
 #shell of function that will later be used to implement the linked list
 #insertion method
 def linkedList(data, index, hashTable):
-    pass
+    #create variable for current data location
+    curData = hashTable[index]
+    #if/else statement to determine if a spot in the hash table is empty
+    #if the spot is full, move elsewhere
+    #if the spot is empty, insert the data into that spot
+    if hashTable[index] != None:
+        while curData.next != None:
+            curData = curData.next
+        curData.next = data
+    else:
+        hashTable[index] = data
             
 #main function where all other functions are run.
 def main():
@@ -118,6 +146,7 @@ def main():
 
         for row in data:
             movie = Data(row)
+            count = 0
 
             #get title keys
             titleKeys = hashMath(movie.title)
@@ -130,23 +159,33 @@ def main():
             quoteIndex = quoteKeys % len(hashTableQuote)
 
             #insert Data into hash tables using linear probing method
-            linearProbing(hashTableTitle, titleIndex, movie)
-            linearProbing(hashTableQuote, quoteIndex, movie)
+            # linearProbing(hashTableTitle, titleIndex, movie)
+            # linearProbing(hashTableQuote, quoteIndex, movie)
+
+            #insert data into hash tables using linked list method
+            linkedList(Node(movie), titleIndex, hashTableTitle)
+            linkedList(Node(movie), quoteIndex, hashTableQuote)
     
     #hash table construction complete, end timer
     end = time.time()
 
     #state which version this is and what method was used
-    print("Version 3 using new collision counting function and wasted space function; updated linear probing insert method\n")
+    print("Version 4 using linked list insertion method\n")
 
     #calculate wasted space in both hash tables using displayWastedSpace function
+    # titleWastedSpace = displayWastedLinearSpace(hashTableTitle)
+    # quoteWastedSpace = displayWastedLinearSpace(hashTableQuote)
+
+    #calculate linked list method collisions in both hash tables using displayCollisions function
+    hashTitleCollisions = displayLinkedCollisions(hashTableTitle, titleIndex)
+    hashQuoteCollisions = displayLinkedCollisions(hashTableQuote, quoteIndex)
+
+
+    #calculate wasted space in both hash tables for linked list method
     titleWastedSpace = displayWastedSpace(hashTableTitle)
     quoteWastedSpace = displayWastedSpace(hashTableQuote)
 
-    #calculate collisions in both hash tables using displayCollisions function
-    hashTitleCollisions = displayCollisions(hashTableTitle, titleIndex)
-    hashQuoteCollisions = displayCollisions(hashTableQuote, quoteIndex)
-
+    #variable for total run time
     runningTime = end - start
 
     #state total time it took to construct hash tables
