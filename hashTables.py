@@ -6,12 +6,9 @@ import time
 #HW 5
 #Assignment: Hash something out
 #Date last edited: 4/7/26
-#Version description: 4th version of the hash table program, featuring new
-# implementation of link list method function, as well as new collision counting function
-# for the linked list function. Linked list function is called for both hash tables in
-# the main function, as well as the new collision counting method in place of the old one.
-# collision counting functions have been renamed accordingly to distinguish between
-# which function is suited for which method.
+#Version description: 5th and final version of hash map program. Try to decrease
+# amount of wasted space caused by what I suspect is the hashMath function being so
+# rudimentary. Linked list method is still being used.
 
 #will be used for linked list insertion
 class Node:
@@ -35,11 +32,12 @@ class Data:
 
 def hashMath(hashData):
     #create variable for prime number to be used
-    prime = 7079
+    prime = 23
+    key = 0
 
-    #creates a hash key by multiplying the len of hashData to ord of hashData at 0, then adds prime number
-    #prime number reduces chance of collisions
-    key = len(hashData) * ord(hashData[0]) + prime
+    #try different math formula that calculates the key differently
+    for i in hashData:
+        key = key * prime + ord(i) #remember: ord returns the unicode value
     return key
 
     #old version 2 for loop (inefficient)
@@ -84,6 +82,7 @@ def displayLinearCollisions(hashTable, index):
     foundSpot = False
     collisions = 0
     index = 0
+    #while loop to increment collisions counter when a spot that is full is found
     while foundSpot == False:
         if hashTable[index] != None:
             collisions += 1
@@ -97,10 +96,8 @@ def displayLinearCollisions(hashTable, index):
 def displayLinkedCollisions(hashTable, index):
     collisions = 0
     curData = hashTable[index]
-
     #skip first data element since no collision will happen here with linked list method
     curData = curData.next
-
     #while loop to count collisions
     while curData.next != None:
         collisions += 1
@@ -155,7 +152,7 @@ def main():
 
             #get quote keys
             quoteKeys = hashMath(movie.quote)
-            #get indexes of the indexes in rows for hash table with quote keys
+            #get indexes of the data in rows for hash table with quote keys
             quoteIndex = quoteKeys % len(hashTableQuote)
 
             #insert Data into hash tables using linear probing method
@@ -170,7 +167,7 @@ def main():
     end = time.time()
 
     #state which version this is and what method was used
-    print("Version 4 using linked list insertion method\n")
+    print("Version 5 using linked list insertion method, updated hashMath function\n")
 
     #calculate wasted space in both hash tables using displayWastedSpace function
     # titleWastedSpace = displayWastedLinearSpace(hashTableTitle)
